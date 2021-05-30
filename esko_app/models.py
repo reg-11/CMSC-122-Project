@@ -38,6 +38,7 @@ class Post(models.Model):
 	likes = models.ManyToManyField(User, related_name='user_posts')
 	tags = TaggableManager()
 
+
 	def total_likes(self):
 		return self.likes.count()
 
@@ -46,8 +47,18 @@ class Post(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('esko_app:post-detail', kwargs={'pk':self.pk})
+		
+	# def get_image_filename(instance, filename):
+	# 		id = instance.post.id
+	# 		return "post_images/%s" % (id) 
 
+# class Images(models.Model):
+# 	post = models.ForeignKey(Post, default=None, on_delete=models.CASCADE)
+# 	image = models.ImageField(upload_to='post_pics',
+# 							  verbose_name='Image',null=True,blank=True)
 
+# 	def __str__(self):
+# 		return self.post.category + "Image"
 
 
 class Profile(models.Model):
@@ -81,24 +92,25 @@ class Comment(models.Model):
 	def __str__(self):
 		return '%s - %s' % (self.post.category, self.commenter)
 
-# class Report(models.Model):
-# 	PROBLEMS = [
-# 		('hate speech', 'hate speech'),
-# 		('violence', 'violence'),
-# 		('harassment', 'harassment'),
-# 		('nudity', 'nudity'),
-# 		('false information', 'false information'),
-# 		('Others', 'Others')
-# 	]
+class Report(models.Model):
+	PROBLEMS = [
+ 		('hate speech', 'hate speech'),
+ 		('violence', 'violence'),
+ 		('harassment', 'harassment'),
+ 		('nudity', 'nudity'),
+ 		('false information', 'false information'),
+ 		('spam', 'spam'),
+ 		('others', 'others')
+ 	]
 
-# 	reporter = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-# 	post = models.ForeignKey(Post,related_name="reports",on_delete=models.CASCADE)
-# 	date_reported = models.DateTimeField(auto_now_add=True)
-# 	problem = models.CharField(max_length=50,choices=PROBLEMS)
-# 	other_problem = models.TextField(null=True,blank=True)
+	reporter = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+	post = models.ForeignKey(Post,related_name="reports",on_delete=models.CASCADE)
+	date_reported = models.DateTimeField(auto_now_add=True)
+	problem = models.CharField(max_length=50,choices=PROBLEMS)
+	notes = models.TextField(null=True,blank=True)
 
-# 	def __str__(self):
-# 		return '%s - %s' % (self.problem, self.reporter)
+	def __str__(self):
+		return '%s - %s' % (self.problem, self.reporter)
 
 
 

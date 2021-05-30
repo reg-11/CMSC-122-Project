@@ -15,8 +15,8 @@ from django.urls import reverse_lazy, reverse
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .models import User, Post, Comment
-from .forms import CreateUserForm, UserUpdateForm, ProfileUpdateForm, CommentForm, CreatePostForm
+from .models import User, Post, Comment, Report
+from .forms import CreateUserForm, UserUpdateForm, ProfileUpdateForm, CommentForm, CreatePostForm, ReportForm
 
 from .filters import PostFilter
 from django.core.paginator import Paginator
@@ -24,6 +24,14 @@ from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from taggit.models import Tag
+
+
+
+# from django.forms import modelformset_factory
+# from .forms import ImageForm
+# from .models import Images
+
+
 # Create your views here.
 
 
@@ -86,8 +94,7 @@ def search_tags(request):
 	else:
 		return render(request, 'esko_app/search_tags.html', {})
 
-def sell(request):
-	return render(request, 'esko_app/sell.html')
+
 
 class PostListView(ListView):
 	model = Post
@@ -106,6 +113,39 @@ class HomeListView(ListView):
 @login_required(login_url= '/esko_app/login/')
 def home(request):
 	posts = Post.objects.all().order_by('-date')
+	# images = Images.objects.all()
+
+	for post in posts:
+
+		total_likes = post.total_likes()
+
+		liked = False
+		if post.likes.filter(id=request.user.id).exists():
+			liked = True
+
+	filtered_posts = PostFilter(
+		request.GET,
+		queryset=posts
+	)
+	
+	post_paginator = Paginator(filtered_posts.qs, 3)
+	page_num = request.GET.get('page')
+	page = post_paginator.get_page(page_num)
+
+	context = {
+		'count' : post_paginator.count,
+		'page' : page,
+		'total_likes': total_likes,
+		'liked': liked,
+		# 'images': images,
+	}	
+	return render(request, 'esko_app/home.html', context)
+
+
+@login_required(login_url= '/esko_app/login/')
+def PostByCategory(request):
+	posts = Post.objects.all().order_by('-date')
+
 
 	for post in posts:
 
@@ -130,8 +170,8 @@ def home(request):
 		'total_likes': total_likes,
 		'liked': liked,
 	}	
-	return render(request, 'esko_app/home.html', context)
-
+	# return render(request, 'esko_app/home.html', context)
+	return render(request, 'esko_app/sell.html', context)
 
 
 class TagIndexView(ListView):
@@ -142,6 +182,46 @@ class TagIndexView(ListView):
 
 	def get_queryset(self):
 		return Post.objects.filter(tags__slug=self.kwargs.get('tag_slug'))
+
+
+def SearchByTag(request):
+ 
+	if request.method == 'GET': # If the form is submitted
+		search_query = request.GET.get('search_box', None)
+		posts = Post.objects.filter(tags__slug=search_query)
+
+
+		# for post in posts:
+
+		# 	total_likes = post.total_likes()
+
+		# 	liked = False
+		# 	if post.likes.filter(id=request.user.id).exists():
+		# 		liked = True
+
+		filtered_posts = PostFilter(
+			request.GET,
+			queryset=posts
+		)
+		
+		post_paginator = Paginator(filtered_posts.qs, 3)
+		page_num = request.GET.get('page')
+		page = post_paginator.get_page(page_num)
+
+		context = {
+			'count' : post_paginator.count,
+			'page' : page,
+			# 'total_likes': total_likes,
+			# 'liked': liked,
+			'search_query': search_query
+		}	
+		return render(request, 'esko_app/search_tags.html', context)
+	# else:
+	# 	return render(request, 'esko_app/notags.html', context)
+		
+
+
+
 
 
 @login_required(login_url= '/esko_app/login/')
@@ -177,7 +257,6 @@ def profile(request):
 
 
 def profileOther(request,username):
-
 		
 	post = get_object_or_404(Post,id=request.POST.get('post_id'))
 
@@ -190,20 +269,18 @@ def profileOther(request,username):
 	posts = Post.objects.filter(author=post.author).order_by('-date')
 	print(posts)
 
-
 	context = {
 		'user' : post.author,
 		'posts' :posts,
 		'total_likes': total_likes,
 		'liked': liked
 	}
-	
 	return render(request,'esko_app/other_profile.html', context)
+
 
 def profileOtherComment(request,username):
 	comment = get_object_or_404(Comment,id=request.POST.get('comment_id'))
 	comments = Comment.objects.filter(commenter=comment.commenter)
-
 
 	posts = Post.objects.filter(author=comment.commenter).order_by('-date')
 	print(comments)
@@ -211,9 +288,9 @@ def profileOtherComment(request,username):
 	context = {
 		'user' : comment.commenter,
 		'posts' :posts,
-	}
-	
+	}	
 	return render(request,'esko_app/other_profile_comment.html', context)
+
 
 
 
@@ -235,6 +312,47 @@ class PostDetailView(LoginRequiredMixin,DetailView):
 		context["liked"] = liked
 		return context
 
+
+
+# def post(request):
+
+# 	# ImageFormSet = modelformset_factory(Images,
+# 	# 									form=ImageForm, extra=5)
+# 	ImageFormSet = modelformset_factory(Images, fields={'image',},extra=5)
+
+# 	if request.method == 'POST':
+
+# 		form = CreatePostForm(request.POST)
+# 		# formset = ImageFormSet(request.POST, request.FILES,
+# 		# 					   queryset=Images.objects.none())
+
+# 		formset = ImageFormSet(request.POST or None, request.FILES or None )
+
+
+# 		if form.is_valid() and formset.is_valid():
+# 			post = form.save(commit=False)
+# 			post.author = request.user
+# 			post.save()
+
+# 			for f in formset:
+# 				try:	
+# 					photo = Images(post=post, image=f.cleaned_data['image'])
+# 					photo.save()
+# 					return HttpResponseRedirect(reverse('esko_app:home'))
+# 				except Exception as e:
+# 					break
+
+# 	else:
+# 		form = CreatePostForm()
+# 		formset = ImageFormSet(queryset=Images.objects.none())
+
+# 	return render(request, 'esko_app/post_form.html',
+# 				  {'form': form, 'formset': formset})
+
+
+
+
+
 class PostCreateView(LoginRequiredMixin,CreateView):
 	model = Post
 	form_class = CreatePostForm
@@ -243,6 +361,7 @@ class PostCreateView(LoginRequiredMixin,CreateView):
 	def form_valid(self, form):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
+
 
 class PostUpdateView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
 	model = Post
@@ -270,7 +389,15 @@ class PostDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
 		return False
 
 
+class ReportPostDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
+	model = Post
+	success_url = '/esko_app/reported-posts'
 
+	def test_func(self):
+		post = self.get_object()
+		if self.request.user == post.author:
+			return True
+		return False
 
 @login_required(login_url= '/esko_app/login/')
 def LikeView(request,pk):
@@ -287,19 +414,6 @@ def LikeView(request,pk):
 	return HttpResponseRedirect(reverse('esko_app:post-detail',args=[str(pk)]))
 
 
-# @login_required(login_url= '/esko_app/login/')
-# def LikeViewHome(request):
-# 	post = get_object_or_404(Post,id=request.POST.get('post_id'))
-# 	liked = False
-# 	if post.likes.filter(id=request.user.id).exists():
-# 		post.likes.remove(request.user)
-# 		liked = False
-# 	else:
-# 		post.likes.add(request.user)
-# 		liked = True
-
-
-# 	return HttpResponseRedirect(reverse('esko_app:home'))
 
 class AddCommentView(LoginRequiredMixin,CreateView):
 	model = Comment
@@ -314,18 +428,44 @@ class AddCommentView(LoginRequiredMixin,CreateView):
 	def get_success_url(self, **kwargs):
 		return reverse('esko_app:post-detail', kwargs={'pk':self.kwargs['pk']})
 
-# class ReportView(LoginRequiredMixin,CreateView):
-# 	model = Report
-# 	form_class= ReportForm
-# 	template_name = 'esko_app/report.html'
 
-# 	def form_valid(self, form):
-# 		form.instance.reporter = self.request.user
-# 		form.instance.post_id = self.kwargs['pk']
-# 		return super().form_valid(form)
+
+
+@login_required(login_url= '/esko_app/login/')
+def reportedPosts(request):
+	reports = Report.objects.all().order_by('-date_reported')
+	#posts = Post.objects.all(repo_id__pk=rpost.post)
+
+	context = {
+		'reports' : reports
+	}
+	return render(request, 'esko_app/reported-post.html', context)
+
+
+class ReportView(LoginRequiredMixin,CreateView):
+	model = Report
+	form_class= ReportForm
+	template_name = 'esko_app/add_report.html'
+
+	def form_valid(self, form):
+		form.instance.reporter = self.request.user
+		form.instance.post_id = self.kwargs['pk']
+		return super().form_valid(form)
 	
-# 	def get_success_url(self, **kwargs):
-# 		return reverse('esko_app:post-detail', kwargs={'pk':self.kwargs['pk']})	
+	def get_success_url(self, **kwargs):
+		return reverse('esko_app:post-detail', kwargs={'pk':self.kwargs['pk']})
+
+
+class ReportDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
+	model = Report
+	success_url = '/esko_app/reported-posts'
+
+	def test_func(self):
+		report = self.get_object()
+		if self.request.user.is_superuser:
+			return True
+		return False
+
 
 
 @login_required(login_url= '/esko_app/login/')

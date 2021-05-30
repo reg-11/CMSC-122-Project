@@ -1,7 +1,8 @@
 from django.urls import path, include
 
 from .views import (PostListView, PostDetailView,PostCreateView, PostUpdateView, 
-	PostDeleteView, AddCommentView, HomeListView, PasswordsChangeView, TagIndexView)
+	PostDeleteView, AddCommentView, HomeListView, PasswordsChangeView, 
+	TagIndexView, ReportView, ReportDeleteView, ReportPostDeleteView)
 
 from . import views
 
@@ -21,10 +22,18 @@ urlpatterns = [
 
 	path('category/', views.category, name='category'),
 	path('search_tags/', views.search_tags, name='search_tags'),
-	path('sell/', views.sell, name='sell'),
+	# path('sell/', views.sell, name='sell'),
 
 	path('profileOther/<username>/', views.profileOther, name='profile-other'),
 	path('profileOtherComment/<username>/', views.profileOtherComment, name='profile-other-comment'),
+
+	path('postCategory/', views.PostByCategory, name='post_by_category'),
+	path('searchTag/', views.SearchByTag, name='search_by_tags'),
+
+	path('reported-posts/', views.reportedPosts, name='reported-posts'),
+	path('post/<int:pk>/report', ReportView.as_view(), name='report-post'),
+	path('report/<int:pk>/delete/', ReportDeleteView.as_view(), name='report-delete'),
+	path('rpost/<int:pk>/delete/', ReportPostDeleteView.as_view(), name='rpost-delete'),
 
 
 	# path('home/', HomeListView.as_view(), name='home'),
@@ -48,7 +57,8 @@ urlpatterns = [
 	path('post/<int:pk>/comment', AddCommentView.as_view(), name='add_comment'),
 
 	path('tags/<slug:tag_slug>/', TagIndexView.as_view(), name='posts_by_tags'),
-	# path('post/<int:pk>/report', ReportView.as_view(), name='report'),
+	
+	# path('post/new/', views.post, name='post-create'),
 
 ]
 

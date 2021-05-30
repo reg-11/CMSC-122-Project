@@ -11,16 +11,25 @@
 						{% csrf_token %}
 						{{ form.as_p }}
 				
-						<!--required note-->
-						<!-- <div class="mb-3">
-							<p style="color:red">* Required</p>
-						</div> -->
-						<!--post submit button-->
+				
 						<div class="mb-3">
 							<button class="btn bgyellow" type="submit" id="postSubmit">Post</button>
 						</div>
 					</form>
 				</div>
+				<!-- <form id="post_form" method="post" action="" enctype="multipart/form-data">
+
+					{% csrf_token %}
+					{{ form.as_p }}
+					
+					{{ formset.management_form }}
+				    {% for form in formset %}
+				        {{ form }}
+				    {% endfor %}
+
+
+					<input type="submit" name="submit" value="Submit" />
+				</form> -->
 			</div>
 		</div>
 			

@@ -53,6 +53,8 @@
 										<small class="text-muted" style="margin-left: 15px">{{ post.date|date:"F d, Y" }}</small>
 									</div>
 									<div class="col-auto">
+										<form method="get" >
+										<!-- 	<button type="submit" name="category" value="{{ post.category }}" class="btn btn-sm btn-secondary">{{ post.category }}</button> -->
 										<button type="button" class="btn btn-sm btn-secondary">{{ post.category }}</button>
 										<button type="button" class="btn btn-sm btn-light ms-2" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
 										<ul class="dropdown-menu" aria-labelledby="filterdropdownmenu">
@@ -71,6 +73,7 @@
 											<li><button class="dropdown-item" type="button"><a class="dropdown-item" style="text-decoration: none;color: inherit;" href="/esko_app/post/{{post.id}}/update/"><i class="bi bi-pen-fill">Edit</i></a></button></li>
 											{% endif %}
 										</ul>
+									</form>
 									</div>
 								</div>
 							<!--content-->

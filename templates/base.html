@@ -24,7 +24,12 @@
 				position: sticky; /* Set the navbar to fixed position */
 				top: 0; /* Position the navbar at the top of the page */
 				width: 100%; /* Full width */
-				
+				z-index: 1;				
+			}
+	
+			.btn-link {
+				color: white;
+				font-size:30px
 			}
 		</style>
 
@@ -51,6 +56,12 @@
 						<li class="nav-item ">
 						<a class="nav-link {% if url_name == 'categories' %}active{% endif %}" href="/esko_app/category/">Categories</a>
 						</li>
+
+						{% if request.user.is_superuser %}
+						<li class="nav-item ">
+						<a class="nav-link {% if url_name == 'reported-posts' %}active{% endif %}" href="/esko_app/reported-posts/">Reports</a>
+						</li>
+						{% endif %}
 
 						<li class="nav-item ">
 						<a class="nav-link {% if url_name == 'about' %}active{% endif %}" href="/esko_app/about/">About</a>

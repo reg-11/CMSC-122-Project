@@ -3,8 +3,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import Profile, Post, Comment
+from .models import Profile, Post, Comment, Report
 
+from taggit.forms import TagField
 
 CATEGORIES = [
 	('sell', 'sell'),
@@ -13,15 +14,15 @@ CATEGORIES = [
 	('swap', 'swap'),
 ]
 
-# PROBLEMS = [
-# 		('hate speech', 'hate speech'),
-# 		('violence', 'violence'),
-# 		('harassment', 'harassment'),
-# 		('nudity', 'nudity'),
-# 		('false information', 'false information'),
-# 		('Others', 'Others')
-# ]
-
+PROBLEMS = [
+ 		('hate speech', 'hate speech'),
+ 		('violence', 'violence'),
+ 		('harassment', 'harassment'),
+ 		('nudity', 'nudity'),
+ 		('false information', 'false information'),
+ 		('spam', 'spam'),
+ 		('others', 'others')
+ 	]
 
 class CreateUserForm(UserCreationForm):
 	password1 =  forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control','placeholder':'Password'}))
@@ -79,16 +80,6 @@ class CommentForm(forms.ModelForm):
 			'body': forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'style': 'width:93%;margin-left:35px','placeholder':'Type your comment here'}),	
 		}
 
-# class ReportForm(forms.ModelForm):
-# 	class Meta:
-# 		model = Report
-# 		problem = forms.ChoiceField(choices=PROBLEMS)
-# 		fields = ['problem', 'other_problem']
-
-# 		widgets = {
-# 			'other_problem': forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'style': 'width:93%;margin-left:35px'}),	
-# 		}
-
 
 
 class CreatePostForm(forms.ModelForm):
@@ -96,13 +87,31 @@ class CreatePostForm(forms.ModelForm):
 	class Meta:
 		model = Post
 		category = forms.ChoiceField(choices=CATEGORIES)
+		tags = TagField()
 		
 		fields = ['category', 'description', 'tags','post_image']
+		# fields = ['category', 'description', 'tags']
 
 		widgets = {
 			'description': forms.Textarea(attrs={'class': 'form-control', 'rows':4}),	
-			'tags': forms.TextInput(attrs={'class': 'form-control'}),
-			'post_image': forms.FileInput(attrs={'class': 'form-control'}),
+			# 'tags': forms.TagField(attrs={'class': 'form-control'}),
+			'post_image': forms.FileInput(attrs={'class': 'form-control','multiple': True}),
+		}
+
+class ReportForm(forms.ModelForm):
+
+	class Meta:
+		model = Report
+		problem = forms.ChoiceField(choices=PROBLEMS)
+		# tags = TagField()
+		
+		fields = ['problem', 'notes']
+		# fields = ['category', 'description', 'tags']
+
+		widgets = {
+			'notes': forms.Textarea(attrs={'class': 'form-control', 'rows':2}),	
+			# 'tags': forms.TagField(attrs={'class': 'form-control'}),
+			# 'post_image': forms.FileInput(attrs={'class': 'form-control','multiple': True}),
 		}
 
 
