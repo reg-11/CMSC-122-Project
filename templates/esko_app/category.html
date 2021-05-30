@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!--welcome container-->
+	<div class="container-fluid text-center mb-2 px-5 py-5 "  style="text-align: center">
+		<h1 class="display-3">
+			What are you looking for?
+		</h1>
+		<p> </p>
+		<form class="d-flex" method=POST action="{% url 'esko_app:search_tags' %}">
+			{% csrf_token %}
+
+			<input class="form-control me-2" type="search" placeholder="Search for tags" aria-label="Search" name="searched" style="width:50%;margin-left: 270px">
+			<button class="btn btn-lg bgyellow text-nowrap" type="submit">
+				Search</a>
+		</form>
+		
+	</div>
+
+	<!--categories container-->
+	<form method="GET">
+		<div class="container-fluid px-3 py-5">
+			<div class="row">
+				<div class="col rounded-3 mx-2 px-3 py-3" style="color:white; background-color:#A10618;" onclick="location.href='esko_app/sell.html';">
+					<h1 class="display-5">
+						<i class="bi bi-cart-check-fill" style="color:#909911;"></i>
+						For Sale
+					</h1>
+				</div>
+				<div class="col rounded-3 mx-2 px-3 py-3" style="color:white; background-color:#389DA1;">
+					<h1 class="display-5">
+						<i class="bi bi-hand-index-fill" style="color:#909911;"></i>
+						Services/Rent
+					</h1>
+				</div>
+			</div>
+			<p> </p>
+			<div class="row">
+				<div class="col rounded-3 mx-2 px-3 py-3" style="color:white; background-color:#435570;">
+					<h1 class="display-5">
+						<i class="bi bi-collection-fill" style="color:#909911;"></i>
+						Swap
+					</h1>
+				</div>
+				<div class="col rounded-3 mx-2 px-3 py-3" style="color:white; background-color:#EFBA34;">
+					<h1 class="display-5">
+						<i class="bi bi-search" style="color:#909911;"></i>
+						Inquire
+					</h1>
+				</div>
+			</div>
+		</div>
+	</form>
+
+{% endblock %}

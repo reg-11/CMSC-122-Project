@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!--welcome container-->
+	<div class="container-fluid text-center mb-2 px-2 py-5" style="background-color:#ECEEEE;">
+		{% if searched %}
+        <h1 class="display-3">
+			Results for {{ searched }}
+		</h1>
+        {% else %}
+        <h1 class="display-3">
+			Search for a tag
+		</h1>
+        {% endif %}      
+	</div>
+
+	
+
+{% endblock %}
