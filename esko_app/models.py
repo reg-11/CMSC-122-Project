@@ -5,7 +5,7 @@ from PIL import Image
 
 from django.urls import reverse
 
-from taggit.managers import TaggableManager
+# from taggit.managers import TaggableManager
 # Create your models here.
 
 
@@ -20,6 +20,34 @@ class Category(models.Model):
 		return reverse('/esko_app/home/')
 
 
+# class Post(models.Model):
+
+# 	CATEGORIES = [
+# 		('sell', 'sell'),
+# 		('find', 'find'),
+# 		('services/rent', 'services/rent'),
+# 		('swap', 'swap'),
+# 	]
+	
+# 	author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+# 	category = models.CharField(max_length=13,choices=CATEGORIES)
+# 	description = models.TextField(max_length=250)
+# 	# tags = models.CharField(max_length=100)
+# 	post_image = models.ImageField(upload_to='post_pics',null=True,blank=True)
+# 	date = models.DateTimeField(auto_now_add=True)
+# 	likes = models.ManyToManyField(User, related_name='user_posts')
+# 	tags = TaggableManager()
+
+
+# 	def total_likes(self):
+# 		return self.likes.count()
+
+# 	def __str__(self):
+# 		return self.category
+
+# 	def get_absolute_url(self):
+# 		return reverse('esko_app:post-detail', kwargs={'pk':self.pk})
+		
 class Post(models.Model):
 
 	CATEGORIES = [
@@ -32,11 +60,15 @@ class Post(models.Model):
 	author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 	category = models.CharField(max_length=13,choices=CATEGORIES)
 	description = models.TextField(max_length=250)
-	# tags = models.CharField(max_length=100)
+	tags = models.CharField(max_length=100)
 	post_image = models.ImageField(upload_to='post_pics',null=True,blank=True)
 	date = models.DateTimeField(auto_now_add=True)
 	likes = models.ManyToManyField(User, related_name='user_posts')
-	tags = TaggableManager()
+	# tags = TaggableManager()
+
+	def tag_list(self):
+		
+		return self.tags.split(',')
 
 
 	def total_likes(self):
@@ -47,19 +79,6 @@ class Post(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('esko_app:post-detail', kwargs={'pk':self.pk})
-		
-	# def get_image_filename(instance, filename):
-	# 		id = instance.post.id
-	# 		return "post_images/%s" % (id) 
-
-# class Images(models.Model):
-# 	post = models.ForeignKey(Post, default=None, on_delete=models.CASCADE)
-# 	image = models.ImageField(upload_to='post_pics',
-# 							  verbose_name='Image',null=True,blank=True)
-
-# 	def __str__(self):
-# 		return self.post.category + "Image"
-
 
 class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)

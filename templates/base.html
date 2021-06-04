@@ -18,26 +18,24 @@
 				content:'*'; 
 				color:red;
 			}
-			.navbar {
-				overflow: visible;
-				background-color: #DBCA46;
-				position: sticky; /* Set the navbar to fixed position */
-				top: 0; /* Position the navbar at the top of the page */
-				width: 100%; /* Full width */
-				z-index: 1;				
-			}
-	
+		
 			.btn-link {
 				color: white;
-				font-size:30px
+				font-size:30px;
 			}
+	
+			.dropdown-menu li:hover ul.last {
+				left: auto;
+				right: 4px;
+			}
+	
 		</style>
 
 		<title>eSKO</title>
 	</head>
 	<body>
 		<!-- Navigation bar -->
-		<nav class="navbar navbar-expand-lg navbar-fixed navbar-dark bgyellow ">
+		<nav class="navbar navbar-expand-lg navbar-fixed navbar-dark bgyellow " style="overflow: visible;background-color: #DBCA46;position: sticky;top: 0;width: 100%;z-index: 1; ">
 			<div class="container-fluid">
 				<a class="navbar-brand" href="#">eSKO</a>
 			</div>
@@ -70,17 +68,20 @@
 				</ul>
 
 				<ul class="navbar-nav me-2 ms-3">
+					{% if request.user.username != 'admin' %}
 					<li class="nav-item me-1">
 						<a class="btn btn-outline-light btn-sm text-nowrap mt-1" href="{% url 'esko_app:post-create' %}">Create Post</a>
 					</li>
+					{% endif %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle {% if url_name == 'profile' %}active{% endif %}"  id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							{{request.user}}
 						</a>
-						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-							<li><a class="dropdown-item" href="/esko_app/profile/">Profile</a></li>
-							<li><a class="dropdown-item" href="/esko_app/profileSettings/">Settings</a></li>
-							<li><a class="dropdown-item" href="/esko_app/logout/">Log Out</a></li>
+						<ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="position: absolute;
+				float: left;min-width: 100px;">
+							<li><a class="dropdown-item" style="float: none;padding: 12px 16px;text-decoration: none;display: block;text-align: left;" href="/esko_app/profile/">Profile</a></li>
+							<li><a class="dropdown-item" href="/esko_app/profileSettings/" style="float: none;padding: 12px 16px;text-decoration: none;display: block;text-align: left;" >Settings</a></li>
+							<li><a class="dropdown-item" href="/esko_app/logout/" style="float: none;padding: 12px 16px;text-decoration: none;display: block;text-align: left;">Log Out</a></li>
 						</ul>
 					</li>
 				</ul>

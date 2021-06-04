@@ -5,7 +5,7 @@ from django import forms
 
 from .models import Profile, Post, Comment, Report
 
-from taggit.forms import TagField
+# from taggit.forms import TagField
 
 CATEGORIES = [
 	('sell', 'sell'),
@@ -87,14 +87,14 @@ class CreatePostForm(forms.ModelForm):
 	class Meta:
 		model = Post
 		category = forms.ChoiceField(choices=CATEGORIES)
-		tags = TagField()
+		# tags = TagField()
 		
 		fields = ['category', 'description', 'tags','post_image']
 		# fields = ['category', 'description', 'tags']
 
 		widgets = {
 			'description': forms.Textarea(attrs={'class': 'form-control', 'rows':4}),	
-			# 'tags': forms.TagField(attrs={'class': 'form-control'}),
+			'tags': forms.TextInput(attrs={'class': 'form-control'}),
 			'post_image': forms.FileInput(attrs={'class': 'form-control','multiple': True}),
 		}
 

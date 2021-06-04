@@ -110,14 +110,50 @@ class HomeListView(ListView):
 	ordering = ['-date']
 
 
+# @login_required(login_url= '/esko_app/login/')
+# def home(request):
+# 	posts = Post.objects.all().order_by('-date')
+# 	# images = Images.objects.all()
+
+# 	for post in posts:
+
+# 		total_likes = post.total_likes()
+
+# 		liked = False
+# 		if post.likes.filter(id=request.user.id).exists():
+# 			liked = True
+
+# 	filtered_posts = PostFilter(
+# 		request.GET,
+# 		queryset=posts
+# 	)
+	
+# 	post_paginator = Paginator(filtered_posts.qs, 3)
+# 	page_num = request.GET.get('page')
+# 	page = post_paginator.get_page(page_num)
+
+# 	context = {
+# 		'count' : post_paginator.count,
+# 		'page' : page,
+# 		'total_likes': total_likes,
+# 		'liked': liked,
+# 		# 'images': images,
+# 	}	
+# 	return render(request, 'esko_app/home.html', context)
+
+
+
 @login_required(login_url= '/esko_app/login/')
 def home(request):
 	posts = Post.objects.all().order_by('-date')
-	# images = Images.objects.all()
+	
+
 
 	for post in posts:
 
 		total_likes = post.total_likes()
+		tag_list = post.tag_list()
+		# print(tag_list)
 
 		liked = False
 		if post.likes.filter(id=request.user.id).exists():
@@ -137,10 +173,9 @@ def home(request):
 		'page' : page,
 		'total_likes': total_likes,
 		'liked': liked,
-		# 'images': images,
+		'tag_list': tag_list,
 	}	
 	return render(request, 'esko_app/home.html', context)
-
 
 @login_required(login_url= '/esko_app/login/')
 def PostByCategory(request):
@@ -184,20 +219,24 @@ class TagIndexView(ListView):
 		return Post.objects.filter(tags__slug=self.kwargs.get('tag_slug'))
 
 
+
 def SearchByTag(request):
  
 	if request.method == 'GET': # If the form is submitted
 		search_query = request.GET.get('search_box', None)
-		posts = Post.objects.filter(tags__slug=search_query)
+		posts = Post.objects.filter(tags__contains=str(search_query))
 
+		total_likes = 0
+		liked = False
+		# tag_list = ['tags']
+		for post in posts:
 
-		# for post in posts:
+			total_likes = post.total_likes()
+			# tag_list = post.tag_list()
 
-		# 	total_likes = post.total_likes()
-
-		# 	liked = False
-		# 	if post.likes.filter(id=request.user.id).exists():
-		# 		liked = True
+			liked = False
+			if post.likes.filter(id=request.user.id).exists():
+				liked = True
 
 		filtered_posts = PostFilter(
 			request.GET,
@@ -211,25 +250,24 @@ def SearchByTag(request):
 		context = {
 			'count' : post_paginator.count,
 			'page' : page,
-			# 'total_likes': total_likes,
-			# 'liked': liked,
-			'search_query': search_query
+			'total_likes': total_likes,
+			'liked': liked,
+			'search_query': search_query,
+			'tag_list' : post.tag_list(),
+
 		}	
 		return render(request, 'esko_app/search_tags.html', context)
-	# else:
-	# 	return render(request, 'esko_app/notags.html', context)
-		
-
-
-
 
 
 @login_required(login_url= '/esko_app/login/')
 def profile(request):
 	posts = Post.objects.filter(author=request.user).order_by('-date')
 
+	total_likes = 0
+	liked = False
 	for post in posts:
 		total_likes = post.total_likes()
+		tag_list = post.tag_list()
 
 		liked = False
 		if post.likes.filter(id=request.user.id).exists():
@@ -251,6 +289,7 @@ def profile(request):
 		'page' : page,
 		'total_likes': total_likes,
 		'liked': liked,
+		'tag_list': tag_list
 	}
 	
 	return render(request,'esko_app/profile.html', context)
@@ -273,7 +312,8 @@ def profileOther(request,username):
 		'user' : post.author,
 		'posts' :posts,
 		'total_likes': total_likes,
-		'liked': liked
+		'liked': liked,
+		'tag_list': post.tag_list(),
 	}
 	return render(request,'esko_app/other_profile.html', context)
 
@@ -283,11 +323,11 @@ def profileOtherComment(request,username):
 	comments = Comment.objects.filter(commenter=comment.commenter)
 
 	posts = Post.objects.filter(author=comment.commenter).order_by('-date')
-	print(comments)
-
+	
 	context = {
 		'user' : comment.commenter,
 		'posts' :posts,
+		
 	}	
 	return render(request,'esko_app/other_profile_comment.html', context)
 
@@ -303,6 +343,7 @@ class PostDetailView(LoginRequiredMixin,DetailView):
 		# getting number of likes 
 		get_post = get_object_or_404(Post, id=self.kwargs['pk'])
 		total_likes = get_post.total_likes()
+		tag_list = get_post.tag_list()
 
 		liked = False
 		if get_post.likes.filter(id=self.request.user.id).exists():
@@ -310,46 +351,10 @@ class PostDetailView(LoginRequiredMixin,DetailView):
 
 		context["total_likes"] = total_likes
 		context["liked"] = liked
+		context["tag_list"] = tag_list
+		print(tag_list)
+		print(get_post.tags)
 		return context
-
-
-
-# def post(request):
-
-# 	# ImageFormSet = modelformset_factory(Images,
-# 	# 									form=ImageForm, extra=5)
-# 	ImageFormSet = modelformset_factory(Images, fields={'image',},extra=5)
-
-# 	if request.method == 'POST':
-
-# 		form = CreatePostForm(request.POST)
-# 		# formset = ImageFormSet(request.POST, request.FILES,
-# 		# 					   queryset=Images.objects.none())
-
-# 		formset = ImageFormSet(request.POST or None, request.FILES or None )
-
-
-# 		if form.is_valid() and formset.is_valid():
-# 			post = form.save(commit=False)
-# 			post.author = request.user
-# 			post.save()
-
-# 			for f in formset:
-# 				try:	
-# 					photo = Images(post=post, image=f.cleaned_data['image'])
-# 					photo.save()
-# 					return HttpResponseRedirect(reverse('esko_app:home'))
-# 				except Exception as e:
-# 					break
-
-# 	else:
-# 		form = CreatePostForm()
-# 		formset = ImageFormSet(queryset=Images.objects.none())
-
-# 	return render(request, 'esko_app/post_form.html',
-# 				  {'form': form, 'formset': formset})
-
-
 
 
 
@@ -398,6 +403,7 @@ class ReportPostDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
 		if self.request.user == post.author:
 			return True
 		return False
+
 
 @login_required(login_url= '/esko_app/login/')
 def LikeView(request,pk):
